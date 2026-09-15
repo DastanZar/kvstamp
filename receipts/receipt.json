@@ -1,0 +1,28 @@
+{
+  "context_tokens": 512,
+  "sweep": {
+    "budget=32/512": {
+      "kept_fraction": 0.062,
+      "relative_output_error": 1.6461
+    },
+    "budget=64/512": {
+      "kept_fraction": 0.125,
+      "relative_output_error": 1.1374
+    },
+    "budget=128/512": {
+      "kept_fraction": 0.25,
+      "relative_output_error": 0.7061
+    },
+    "budget=256/512": {
+      "kept_fraction": 0.5,
+      "relative_output_error": 0.3828
+    },
+    "budget=512/512": {
+      "kept_fraction": 1.0,
+      "relative_output_error": 0.0
+    }
+  },
+  "kv_bytes_full_fp16": 131072,
+  "kv_bytes_at_64": 16384,
+  "compression_at_64": "8.0x"
+}
