@@ -18,7 +18,7 @@ q = torch.randn(h, tq, d)
 k = torch.randn(t, d)
 v = torch.randn(t, d)
 for i in torch.randperm(t)[:10]:
-    k[i] = q[0, i % tq].clone() + torch.randn(d) * 0.1  # heavy tokens
+    k[i] = q[0, int(i) % tq].clone() + torch.randn(d) * 0.1  # heavy tokens
 
 s = score_tokens(q, k)
 sweep = {}
@@ -29,9 +29,27 @@ for budget in (32, 64, 128, 256, 512):
         "relative_output_error": round(r["relative_output_error"], 4),
     }
 
+# structured vs diffuse at IDENTICAL budget: the error is a function of
+# retained attention mass, not of keep-ratio. (sharp: 4 heavy tokens, x30)
+def profile(t_, nh, mult, seed):
+    torch.manual_seed(seed)
+    qq = torch.randn(h, tq, d); kk = torch.randn(t_, d); vv = torch.randn(t_, d)
+    for i in torch.randperm(t_)[:nh]:
+        kk[i] = mult * qq[0, int(i) % tq] + torch.randn(d) * 0.01
+    ss = score_tokens(qq, kk)
+    return qq, kk, vv, ss
+
+compare = {}
+for name, (t_, nh, mult) in {"diffuse(8h@4x)": (192, 8, 4.0),
+                              "sharp(4h@30x)": (192, 4, 30.0)}.items():
+    qq, kk, vv, ss = profile(t_, nh, mult, 0)
+    compare[name] = {b: round(reconstruction_error(qq, kk, vv, ss, budget=b)["relative_output_error"], 3)
+                     for b in (8, 16, 32)}
+
 receipt = {
     "context_tokens": t,
     "sweep": sweep,
+    "structure_at_equal_budget": compare,
     "kv_bytes_full_fp16": t * 2 * d * 2,
     "kv_bytes_at_64": 64 * 2 * d * 2,
     "compression_at_64": f"{t / 64:.1f}x",

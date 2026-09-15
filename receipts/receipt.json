@@ -22,6 +22,18 @@
       "relative_output_error": 0.0
     }
   },
+  "structure_at_equal_budget": {
+    "diffuse(8h@4x)": {
+      "8": 1.22,
+      "16": 0.771,
+      "32": 0.532
+    },
+    "sharp(4h@30x)": {
+      "8": 0.196,
+      "16": 0.142,
+      "32": 0.094
+    }
+  },
   "kv_bytes_full_fp16": 131072,
   "kv_bytes_at_64": 16384,
   "compression_at_64": "8.0x"
